@@ -18,8 +18,9 @@ A range of different visibility analysis approaches were used in QGIS, recorded 
 
 - Using DEFRA LiDAR Composite First Return DSM
 - Merged raster from two dsms covering the region
-- Creating a ten m grid
-- Binary viewshed, 1 m observer and 0 m target height.
+- Testing both 10 and 20 m grids
+- Binary viewshed, 1 m observer and 0 m target height
+- The resulting viewshed is then multiplied by ((DSM - DTM) <= 0), removing treetops as "highly visible locations" - see [output tiff](park-vga/qgis_work/final_diff_20m.tif)
 
 ## Important resources
 
