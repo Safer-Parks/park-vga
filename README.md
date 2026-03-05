@@ -32,3 +32,18 @@ A range of different visibility analysis approaches were used in QGIS, recorded 
     - Type of DEM important: DSM most accurate, over DTM
     - DEM resolution not overly important
     - Line of sight most accurate, over viewshed or cumalitive viewshed
+
+## Python project
+
+### Setup
+
+1. Install pixi: https://pixi.shsß
+2. Initialize the environment:
+   ```bashß
+   pixi install
+   ```
+3. Activate the environment:
+   ```bash
+   pixi shell
+   ```
+
