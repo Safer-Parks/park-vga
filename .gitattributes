@@ -1,5 +1,6 @@
 *.tif filter=lfs diff=lfs merge=lfs -text
 *.tiff filter=lfs diff=lfs merge=lfs -text
-qgis_work/final_diff_20m.tif filter=lfs diff=lfs merge=lfs -text
+qgis_work/final_diff_10m.tif filter=lfs diff=lfs merge=lfs -text
+gis_work/diff_10m_geo.tif filter=lfs diff=lfs merge=lfs -text
 example_datasets/*.tif filter=lfs diff=lfs merge=lfs -text
 example_datasets/*.tiff filter=lfs diff=lfs merge=lfs -text

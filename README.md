@@ -37,9 +37,9 @@ A range of different visibility analysis approaches were used in QGIS, recorded 
 
 ### Setup
 
-1. Install pixi: https://pixi.shsß
+1. Install pixi: https://pixi.sh
 2. Initialize the environment:
-   ```bashß
+   ```bash
    pixi install
    ```
 3. Activate the environment:
