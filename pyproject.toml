@@ -1,39 +1,29 @@
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "park-vga"
+name = "park_vga"
 version = "0.1.0"
-description = "Analysis of parks and visual graph analysis"
+description = "Visibility analysis in parks"
 readme = "README.md"
 authors = [
     {name = "Your Name", email = "your.email@example.com"}
 ]
 requires-python = ">=3.10"
-dependencies = []
-
-[project.optional-dependencies]
-dev = [
-    "jupyter>=1.0.0",
-    "numpy>=1.20.0",
-    "matplotlib>=3.5.0",
+dependencies = [
+    "geopandas",
+    "shapely",
+    "pandas",
+    "numpy"
 ]
 
-[tool.pixi.workspace]
-channels = ["conda-forge"]
-platforms = ["osx-arm64", "osx-64", "linux-64"]
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.pixi.dependencies]
-python = ">=3.10"
-jupyter = ">=1.0.0"
-numpy = ">=1.20.0"
-matplotlib = ">=3.5.0"
 
-[tool.pixi.tasks]
+[project.optional-dependencies]
+test = [
+    "pytest>=6.0",
+    "pytest-cov"
+]
 
-[tool.setuptools]
-packages = ["park_vga"]
-
-[tool.setuptools.package-dir]
-"" = "src"
+[tool.setuptools.packages.find]
+where = ["src"]
