@@ -223,6 +223,100 @@ def load_lidar_rasters_for_park(park_geometry, dtm_paths, dsm_paths):
         'crs': raster_crs
     }
 
+def extract_park_raster_wales(park_gdf, dtm_path, dsm_path):
+    """
+    Extract DTM and DSM data for a park from Wales COG rasters using bounding box.
+    
+    Simpler alternative to load_lidar_rasters_for_park() optimized for single-file 
+    COG datasets (Wales) rather than tiled datasets (England).
+    
+    Parameters:
+    -----------
+    park_gdf : GeoDataFrame
+        Park boundary geometry
+    dtm_path : str
+        Path to DTM raster file
+    dsm_path : str
+        Path to DSM raster file
+    
+    Returns:
+    --------
+    dict with keys:
+        - 'dsm': DSM clipped array
+        - 'dtm': DTM clipped array  
+        - 'height_above_ground': DSM - DTM (vegetation/building height)
+        - 'dsm_meta': DSM metadata
+        - 'dtm_meta': DTM metadata
+        - 'transform': rasterio Affine transform for clipped data
+        - 'crs': Coordinate reference system
+    
+    or None if error
+    """
+    from rasterio.windows import from_bounds
+    
+    try:
+        # Open DTM to get CRS
+        with rasterio.open(dtm_path) as src:
+            raster_crs = src.crs
+        
+        # Ensure park is in raster CRS
+        if park_gdf.crs != raster_crs:
+            print(f"Reprojecting park from {park_gdf.crs} to {raster_crs}")
+            park_gdf = park_gdf.to_crs(raster_crs)
+        
+        minx, miny, maxx, maxy = park_gdf.bounds.iloc[0]
+        
+        # Extract DTM
+        with rasterio.open(dtm_path) as src:
+            window = from_bounds(minx, miny, maxx, maxy, src.transform)
+            dtm_clipped = src.read(1, window=window)
+            dtm_transform = src.window_transform(window)
+            dtm_meta = src.meta.copy()
+            dtm_meta.update({
+                'height': dtm_clipped.shape[0],
+                'width': dtm_clipped.shape[1],
+                'transform': dtm_transform
+            })
+        
+        # Extract DSM
+        with rasterio.open(dsm_path) as src:
+            window = from_bounds(minx, miny, maxx, maxy, src.transform)
+            dsm_clipped = src.read(1, window=window)
+            dsm_transform = src.window_transform(window)
+            dsm_meta = src.meta.copy()
+            dsm_meta.update({
+                'height': dsm_clipped.shape[0],
+                'width': dsm_clipped.shape[1],
+                'transform': dsm_transform
+            })
+        
+        # Calculate height above ground
+        height_above_ground = dsm_clipped - dtm_clipped
+        
+        # Report statistics
+        valid_pixels = np.sum(~np.isnan(height_above_ground))
+        if valid_pixels > 0:
+            height_range = f"{np.nanmin(height_above_ground):.1f}m to {np.nanmax(height_above_ground):.1f}m"
+        else:
+            height_range = "No valid data"
+        
+        print(f"Extracted {dsm_clipped.shape} pixels, Height range: {height_range}")
+        
+        return {
+            'dsm': dsm_clipped,
+            'dtm': dtm_clipped,
+            'height_above_ground': height_above_ground,
+            'dsm_meta': dsm_meta,
+            'dtm_meta': dtm_meta,
+            'transform': dtm_transform,
+            'crs': raster_crs
+        }
+    
+    except Exception as e:
+        print(f"ERROR extracting park raster: {e}")
+        return None
+
+
 def point_to_raster_index(point, transform):
     """Convert a point to raster row/col indices"""
     from rasterio.transform import rowcol
