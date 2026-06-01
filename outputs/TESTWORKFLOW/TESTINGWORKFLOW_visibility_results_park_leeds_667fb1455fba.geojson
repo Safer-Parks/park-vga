@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "TESTINGWORKFLOW_visibility_results_park_leeds_667fb1455fba",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "visible_points": 7, "total_points": 17, "visibility_pct": 41.17647058823529 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -1.556030052816181, 53.795279758689773 ], [ -1.556117378117168, 53.795310041886303 ], [ -1.556205335307145, 53.795280406957353 ], [ -1.556205967069782, 53.795220488894259 ], [ -1.556118641888353, 53.795190205762474 ], [ -1.55603068482473, 53.795219840629009 ], [ -1.556030052816181, 53.795279758689773 ] ] ] } }
+]
+}
