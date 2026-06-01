@@ -455,7 +455,7 @@ def calculate_visibility_metrics(analysis_points, dsm, dtm, transform,
     return results_gdf
 
 def extract_foliage_by_hexgrid(height_raster, transform, hex_polygons, 
-                               min_height=2, crs='EPSG:27700'):
+                               min_height=0.1, crs='EPSG:27700'):
     """
     Extract foliage statistics from height raster, aggregated to hexagon grid.
     Outputs point-based GeoJSON with foliage metrics per hex.

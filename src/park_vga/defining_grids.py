@@ -85,12 +85,12 @@ def OSGB36_to_os_grid(easting, northing, include_quadrant=False):
 def get_tile_refs_from_bbox(bbox):
     # get the corner points of the bounding box
     corners = [bbox[0].exterior.coords[i] for i in range(4)]
-    # print(corners) # for dev, but remove for scaling up.
+    print(corners)
 
     # convert each corner to a grid reference
     # grid_refs = [OSGB36_to_os_grid(corner[1], corner[0], include_quadrant=True) for corner in corners]
     grid_refs = [OSGB36_to_os_grid(corner[0], corner[1], include_quadrant=True) for corner in corners]
-    
+    print("Grid refs for corners:", grid_refs)
     # return unique grid references
     return set(grid_refs)
 
@@ -98,10 +98,11 @@ def find_tiles(park_gdf, crs="EPSG:27700"):
     """From bounding park geometry, calculate bounding box and associated grid refs"""
     bbox_list = list(park_gdf.bounds.iloc[0])
     bbox = gpd.GeoSeries(box(*bbox_list), crs=crs)
+    print("Calculating grid refs")
     grid_refs = get_tile_refs_from_bbox(bbox)
     return set(grid_refs)
 
-def find_file_paths(tile_names, lidar_dtm, lidar_dsm):
+def find_file_paths_old(tile_names, lidar_dtm, lidar_dsm):
     """Given a set of tile names, find the corresponding file paths for DTM and DSM"""
     dtm_paths = []
     dsm_paths = []
@@ -125,9 +126,47 @@ def find_file_paths(tile_names, lidar_dtm, lidar_dsm):
     
     return dtm_paths, dsm_paths
 
+def find_file_paths(tile_names, lidar_dtm, lidar_dsm):
+    """Given a set of tile names, find the corresponding file paths for DTM and DSM"""
+    dtm_paths = []
+    dsm_paths = []
+    
+    # Get all files in the directories once (no recursive search)
+    try:
+        dtm_files = os.listdir(lidar_dtm)
+    except OSError as e:
+        print(f"Error reading DTM directory: {e}")
+        dtm_files = []
+    
+    try:
+        dsm_files = os.listdir(lidar_dsm)
+    except OSError as e:
+        print(f"Error reading DSM directory: {e}")
+        dsm_files = []
+    
+    for tile in tile_names:
+        # Find matching DTM file
+        dtm_match = [f for f in dtm_files if tile in f and f.endswith('.tif')]
+        if dtm_match:
+            dtm_paths.append(os.path.join(lidar_dtm, dtm_match[0]))
+        else:
+            print(f"Warning: No DTM file found for tile {tile}")
+        
+        # Find matching DSM file
+        dsm_match = [f for f in dsm_files if tile in f and f.endswith('.tif')]
+        if dsm_match:
+            dsm_paths.append(os.path.join(lidar_dsm, dsm_match[0]))
+        else:
+            print(f"Warning: No DSM file found for tile {tile}")
+    
+    return dtm_paths, dsm_paths
+
 def park_geometry_to_file_path(park_gdf, lidar_dtm, lidar_dsm):
+    print("Finding tile names from park geometry")
     tile_names = find_tiles(park_gdf)
+    print("Tile name(s):", tile_names, "\nFinding file paths for these tiles")
     dtm_paths, dsm_paths = find_file_paths(tile_names, lidar_dtm, lidar_dsm)
+    print("Paths found:", "\nDTM paths:", dtm_paths, "\nDSM paths:", dsm_paths)
     return dtm_paths, dsm_paths
 
 def check_plot(park_gdf):
