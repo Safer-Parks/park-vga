@@ -25,7 +25,7 @@ jobs:
         pixi-version: v0.62.1
         
     - name: Run pytest with coverage
-      run: pixi run pytest tests/ -v --cov=src/park_vga --cov-report=term-missing
+      run: pixi run pytest tests/ -v
       
     - name: Show coverage summary
       if: always()
