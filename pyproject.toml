@@ -11,7 +11,8 @@ dependencies = [
     "geopandas",
     "shapely",
     "pandas",
-    "numpy"
+    "numpy",
+    "rasterio"
 ]
 
 [build-system]

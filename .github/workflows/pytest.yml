@@ -1,0 +1,27 @@
+name: pytest
+
+on:
+  push:
+    branches: [ main]
+  pull_request:
+    branches: [ main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install pixi
+      uses: prefix-dev/setup-pixi@v0.8.1
+      with:
+        pixi-version: v0.21.0
+        
+    - name: Run pytest with coverage
+      run: pixi run pytest tests/ -v --cov=src/park_vga --cov-report=term-missing
+      
+    - name: Show coverage summary
+      if: always()
+      run: echo "Coverage report generated above"

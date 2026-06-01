@@ -97,8 +97,8 @@ def workflow_eng(filepath, n,
             crs='EPSG:27700'
         )
     foliage_stats = foliage_stats.set_geometry(hex_grid["polygons"].geometry)
-    park_original =  defining_grids.load_data(filepath, park_id, -5, type="id")
-    park_boundary = park_original.geometry.iloc[0]
+    # park_original =  defining_grids.load_data(filepath, park_id, -5, type="id")
+    # park_boundary = park_original.geometry.iloc[0]
     foliage_clipped = foliage_stats[foliage_stats.geometry.intersects(park_boundary)]
     foliage_data_to_save = foliage_clipped.to_crs('EPSG:4326')
     print("Finished all analysis; saving files/returning data if requested.")
