@@ -5,6 +5,7 @@ __version__ = "0.1.0"
 # Import submodules
 from . import defining_grids
 from . import lidar
+from . import workflow
 
 # Expose functions/classes at package level
 from .defining_grids import load_data, example, park_geometry_to_file_path, check_plot, create_hexagon_grid
