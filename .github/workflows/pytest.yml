@@ -13,6 +13,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+
+    - name: Remove lock file to force fresh resolution
+      run: rm pixi.lock
     
     # - name: Install system dependencies
     #   run: |
@@ -31,5 +34,5 @@ jobs:
     - name: Verify GDAL drivers
       run: pixi run python -c "from osgeo import gdal; print('GDAL Version:', gdal.__version__); driver = gdal.GetDriverByName('GTiff'); print('GeoTIFF driver available:', driver is not None)"
         
-    - name: Run pytest with coverage
-      run: pixi run pytest tests/ -v
+    - name: Run pytest
+      run: pixi run pytest
