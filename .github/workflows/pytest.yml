@@ -13,25 +13,27 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+          lfs: true
 
-    - name: Remove lock file to force fresh resolution
-      run: rm pixi.lock
+    # - name: Remove lock file to force fresh resolution
+    #   run: rm pixi.lock
     
-    - name: Install system GDAL tools first
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gdal-bin python3-gdal libgdal-dev
+    # - name: Install system GDAL tools first
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y gdal-bin python3-gdal libgdal-dev
     
     - name: Install pixi
       uses: prefix-dev/setup-pixi@v0.8.1
       with:
         pixi-version: v0.62.1
     
-    - name: Reinstall rasterio to link against system GDAL
-      run: pixi run pip install --force-reinstall --no-cache-dir rasterio
+    # - name: Reinstall rasterio to link against system GDAL
+    #   run: pixi run pip install --force-reinstall --no-cache-dir rasterio
     
-    - name: Verify GDAL drivers
-      run: pixi run python -c "from osgeo import gdal; print('GDAL Version:', gdal.__version__); driver = gdal.GetDriverByName('GTiff'); print('GeoTIFF driver available:', driver is not None)"
+    # - name: Verify GDAL drivers
+    #   run: pixi run python -c "from osgeo import gdal; print('GDAL Version:', gdal.__version__); driver = gdal.GetDriverByName('GTiff'); print('GeoTIFF driver available:', driver is not None)"
         
     - name: Run pytest
       run: pixi run pytest
