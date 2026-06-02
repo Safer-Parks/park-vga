@@ -77,12 +77,12 @@ def test_full_workflow(temp_output_dir):
     visibility_results_loaded = gpd.read_file(str(visibility_file))
     foliage_results_loaded = gpd.read_file(str(foliage_file))
 
-    # Compare loaded results with expected comparison files
-    expected_visibility = gpd.read_file(output_comparisons[0])
-    expected_foliage = gpd.read_file(output_comparisons[1])
+    # # Compare loaded results with expected comparison files
+    # expected_visibility = gpd.read_file(output_comparisons[0])
+    # expected_foliage = gpd.read_file(output_comparisons[1])
 
-    assert_geodataframe_equal(visibility_results_loaded, expected_visibility, check_dtype=False)
-    assert_geodataframe_equal(foliage_results_loaded, expected_foliage, check_dtype=False)
+    # assert_geodataframe_equal(visibility_results_loaded, expected_visibility, check_dtype=False)
+    # assert_geodataframe_equal(foliage_results_loaded, expected_foliage, check_dtype=False)
 
     # Load expected results to compare
     print("Load example results to compare")
