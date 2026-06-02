@@ -50,6 +50,5 @@ A range of different visibility analysis approaches were used in QGIS, recorded 
 You can run the test suite using pixi to run pytest:
 
 ```bash
-pixi shell
-pytest
+pixi run pytest
 ```
