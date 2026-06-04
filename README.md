@@ -52,3 +52,5 @@ You can run the test suite using pixi to run pytest:
 ```bash
 pixi run pytest
 ```
+
+These tesats also run automatically on GitHub actions

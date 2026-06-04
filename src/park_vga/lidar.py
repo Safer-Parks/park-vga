@@ -323,8 +323,17 @@ def point_to_raster_index(point, transform):
     row, col = rowcol(transform, point.x, point.y)
     return int(row), int(col)
 
+def points_to_raster_indices(points, transform):
+    """Convert multiple points to raster indices at once (vectorized)"""
+    from rasterio.transform import rowcol
+    xs = np.array([p.x for p in points])
+    ys = np.array([p.y for p in points])
+    rows, cols = rowcol(transform, xs, ys)
+    return np.column_stack([rows.astype(int), cols.astype(int)])
+
 def get_elevation_at_point(point, raster, transform):
     """Get elevation value at a point from raster"""
+    # row, col = points_to_raster_indices(point, transform)
     row, col = point_to_raster_index(point, transform)
     
     # Check bounds
