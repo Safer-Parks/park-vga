@@ -36,7 +36,8 @@ def workflow_eng(filepath, n,
                  buffer_distance=20, spacing=10,
                  return_results=False,
                  save_results=True,
-                 max_distance=100):
+                 max_distance=100,
+                 park_id_for_file_name=None):
     
     # check output filepath exists, if not create it
     import os
@@ -47,7 +48,8 @@ def workflow_eng(filepath, n,
         print(f"Output directory already exists at {output_filepath}")
     park_id = find_park_id(n, filepath)
     print(f"Park ID: {park_id}")
-    park_id_for_file_name = str(park_id).replace(" ", "_").replace(";", "_").lower()
+    if park_id_for_file_name is None:
+        park_id_for_file_name = str(park_id).replace(" ", "_").replace(";", "_").lower()
     print(f"Park ID for file name: {park_id_for_file_name}")
     print("Define park grid.")
     park_gdf = defining_grids.load_data(filepath, park_id, buffer_distance, type="id")
@@ -81,7 +83,7 @@ def workflow_eng(filepath, n,
     vis_data_to_save = visibility_clipped.to_crs('EPSG:4326')
     # save out visibility results as geojson here - should auto-generate a folder in the previous function
     if save_results:
-        output_path = f"{output_filepath}/TESTINGWORKFLOW_visibility_results_park_{park_id_for_file_name}.geojson"
+        output_path = f"{output_filepath}/{park_id_for_file_name}_visibility.geojson"
         vis_data_to_save.to_file(output_path, driver='GeoJSON')
         print(f"Visibility results saved to {output_path}")
     # Now calculate foliage coverage
@@ -104,7 +106,7 @@ def workflow_eng(filepath, n,
     foliage_data_to_save = foliage_clipped.to_crs('EPSG:4326')
     print("Finished all analysis; saving files/returning data if requested.")
     if save_results:
-        output_path = f"{output_filepath}/TESTINGWORKFLOW_foliage_results_park_{park_id_for_file_name}.geojson"
+        output_path = f"{output_filepath}/{park_id_for_file_name}_foliage.geojson"
         foliage_data_to_save.to_file(output_path, driver='GeoJSON')
         print(f"Foliage results saved to {output_path}")
     if return_results:
@@ -116,7 +118,8 @@ def workflow_wales(filepath, n,
                  buffer_distance=20, spacing=10,
                  return_results=False,
                  save_results=True,
-                 max_distance=100):
+                 max_distance=100,
+                 park_id_for_file_name=None):
     
     # check output filepath exists, if not create it
     import os
@@ -127,7 +130,8 @@ def workflow_wales(filepath, n,
         print(f"Output directory already exists at {output_filepath}")
     park_id = find_park_id(n, filepath)
     print(f"Park ID: {park_id}")
-    park_id_for_file_name = str(park_id).replace(" ", "_").replace(";", "_").lower()
+    if park_id_for_file_name is None:
+        park_id_for_file_name = str(park_id).replace(" ", "_").replace(";", "_").lower()
     print(f"Park ID for file name: {park_id_for_file_name}")
     print("Define park grid.")
     park_gdf = defining_grids.load_data(filepath, park_id, buffer_distance, type="id")

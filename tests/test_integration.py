@@ -55,7 +55,8 @@ def test_full_workflow(temp_output_dir):
     results = park_vga.workflow.workflow_eng(boundaries_file, park_n,
                                          lidar_dtm, lidar_dsm,
                                          temp_output_dir,
-                                         return_results=True, save_results=True,)
+                                         return_results=True, save_results=True,
+                                         park_id_for_file_name="1dda12df6406")
     print("Check that the type and len of output is correct")
     assert type(results) == tuple and len(results) == 2
     visibility_results = results[0]
@@ -71,8 +72,8 @@ def test_full_workflow(temp_output_dir):
     # Check that there are output files in output_path
 
     # Check that there are output files in temp_output_dir
-    visibility_file = temp_output_dir / 'TESTINGWORKFLOW_visibility_results_park_leeds_945491c73c1c.geojson'
-    foliage_file = temp_output_dir / 'TESTINGWORKFLOW_foliage_results_park_leeds_945491c73c1c.geojson'
+    visibility_file = temp_output_dir / '1dda12df6406_visibility.geojson'
+    foliage_file = temp_output_dir / '1dda12df6406_foliage.geojson'
 
     visibility_results_loaded = gpd.read_file(str(visibility_file))
     foliage_results_loaded = gpd.read_file(str(foliage_file))
