@@ -5,6 +5,8 @@ from rasterio.merge import merge
 from rasterio.mask import mask
 from rasterio.io import MemoryFile
 from shapely.geometry import Point, LineString, Polygon, MultiPolygon
+from joblib import Parallel, delayed
+
 
 
 def load_lidar_rasters_for_park(park_geometry, dtm_paths, dsm_paths):
@@ -394,100 +396,7 @@ def check_line_of_sight(observer_point, target_point, dsm, dtm, transform,
                 return False
     
     return True
-    # distance = observer_point.distance(target_point)
-    
-    # if distance < 1:
-    #     return True
-    
-    # # Sample points along the line (every meter)
-    # num_samples = int(distance) + 1
-    # # num_samples = max(2, int(distance / 2))  # Sample every ~2m
-    
-    # # Create line samples
-    # x_samples = np.linspace(observer_point.x, target_point.x, num_samples)
-    # y_samples = np.linspace(observer_point.y, target_point.y, num_samples)
-    
-    # # Required height at each sample point (linear interpolation)
-    # required_heights = np.linspace(obs_elevation, target_elevation, num_samples)
-    
-    # # Check each sample point
-    # for i in range(1, num_samples - 1):  # Skip start and end points
-    #     sample_point = Point(x_samples[i], y_samples[i])
-        
-    #     # Get surface elevation at this point
-    #     surface_elevation = get_elevation_at_point(sample_point, dsm, transform)
-        
-    #     if np.isnan(surface_elevation):
-    #         continue
-        
-    #     # Check if surface blocks the line of sight
-    #     if surface_elevation > required_heights[i]:
-    #         return False
-    
-    # return True
 
-# def calculate_visibility_metrics(analysis_points, dsm, dtm, transform, 
-#                                  observer_height=1.0, target_height=0, max_distance=100):
-#     """
-#     Calculate visibility metrics for all analysis points
-    
-#     Parameters:
-#     analysis_points: GeoDataFrame of analysis points
-#     dsm: Digital Surface Model
-#     dtm: Digital Terrain Model
-#     transform: rasterio transform
-#     observer_height: observer eye height in meters; default 1 m
-#     max_distance: maximum visibility distance in meters
-    
-#     Returns:
-#     GeoDataFrame with visibility metrics
-#     """
-#     print(f"Calculating visibility for {len(analysis_points)} points")
-    
-#     results = []
-    
-#     for idx, observer_row in analysis_points.iterrows():
-#         if idx % 50 == 0:
-#             print(f"Processing point {idx+1}/{len(analysis_points)}")
-        
-#         observer_point = observer_row.geometry
-#         visible_count = 0
-#         total_checked = 0
-        
-#         # Check visibility to all other points within max_distance
-#         for target_idx, target_row in analysis_points.iterrows():
-#             if idx == target_idx:
-#                 continue
-            
-#             target_point = target_row.geometry
-#             distance = observer_point.distance(target_point)
-            
-#             if distance > max_distance:
-#                 continue
-            
-#             total_checked += 1
-            
-#             if check_line_of_sight(observer_point, target_point, dsm, dtm, 
-#                                   transform, observer_height, target_height):
-#                 visible_count += 1
-        
-#         # Calculate visibility percentage
-#         if total_checked > 0:
-#             visibility_pct = (visible_count / total_checked) * 100
-#         else:
-#             visibility_pct = 0
-        
-#         results.append({
-#             'geometry': observer_point,
-#             'visible_points': visible_count,
-#             'total_points': total_checked,
-#             'visibility_pct': visibility_pct
-#         })
-    
-#     results_gdf = gpd.GeoDataFrame(results, crs=analysis_points.crs)
-
-    
-#     return results_gdf
 
 def calculate_visibility_metrics(analysis_points, dsm, dtm, transform, 
                                  observer_height=1.0, target_height=0, max_distance=100):

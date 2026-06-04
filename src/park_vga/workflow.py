@@ -35,7 +35,8 @@ def workflow_eng(filepath, n,
                  output_filepath,
                  buffer_distance=20, spacing=10,
                  return_results=False,
-                 save_results=True):
+                 save_results=True,
+                 max_distance=100):
     
     # check output filepath exists, if not create it
     import os
@@ -71,7 +72,7 @@ def workflow_eng(filepath, n,
             lidar_data['transform'],
             observer_height=1.0,
             target_height=0,
-            max_distance=100
+            max_distance=max_distance
         )
     visibility_results = visibility_results.set_geometry(hex_grid["polygons"].geometry)
     park_original =  defining_grids.load_data(filepath, park_id, 0, type="id")

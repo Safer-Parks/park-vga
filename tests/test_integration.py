@@ -55,7 +55,7 @@ def test_full_workflow(temp_output_dir):
     results = park_vga.workflow.workflow_eng(boundaries_file, park_n,
                                          lidar_dtm, lidar_dsm,
                                          temp_output_dir,
-                                         return_results=True, save_results=True)
+                                         return_results=True, save_results=True,)
     print("Check that the type and len of output is correct")
     assert type(results) == tuple and len(results) == 2
     visibility_results = results[0]
