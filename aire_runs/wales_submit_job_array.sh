@@ -7,10 +7,10 @@
 #SBATCH --output=logs/wales_parks_%a.log
 #SBATCH --error=logs/wales_parks_%a.err
 #SBATCH --mail-type=END,FAIL
-#SBATCH --account=YOUR_ACCOUNT
+#SBATCH --account=proj_a
 
 mkdir -p logs
-
+eval "$(pixi shell-hook --shell=bash)"
 python wales_run.py \
     "$SLURM_ARRAY_TASK_ID" \
     "wales_filenames.csv" \
