@@ -5,7 +5,7 @@
 # Number of parallel jobs
 PARALLEL_JOBS=3
 # TOTAL_PARKS=296
-TOTAL_PARKS=30 # For testing with a smaller number of parks
+TOTAL_PARKS=30 # For testing with a smaller number of parks 
 
 echo "Starting to process $TOTAL_PARKS parks with $PARALLEL_JOBS parallel jobs"
 

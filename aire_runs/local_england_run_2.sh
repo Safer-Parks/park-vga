@@ -12,7 +12,7 @@ echo "Starting to process $TOTAL_PARKS parks with $PARALLEL_JOBS parallel jobs"
 
 declare -a pids
 
-for i in $(seq STARTING_PARK $((STARTING_PARK + TOTAL_PARKS - 1))); do
+for i in $(seq $STARTING_PARK $((STARTING_PARK + TOTAL_PARKS - 1))); do
     echo "Submitting park $i ($((i+1))/$TOTAL_PARKS)"
     
     python england_run.py \
