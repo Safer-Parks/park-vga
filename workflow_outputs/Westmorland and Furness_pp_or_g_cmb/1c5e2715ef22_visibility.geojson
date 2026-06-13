@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "1c5e2715ef22_visibility",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "visible_points": 2, "total_points": 10, "visibility_pct": 20.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -3.096270290980759, 54.195979256399937 ], [ -3.096377413637482, 54.196014232129862 ], [ -3.096482632244164, 54.195977322345357 ], [ -3.096480728022623, 54.195905436926523 ], [ -3.096373605562336, 54.195870461286752 ], [ -3.096268387127153, 54.195907370975654 ], [ -3.096270290980759, 54.195979256399937 ] ] ] } }
+]
+}

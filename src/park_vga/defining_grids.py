@@ -146,14 +146,14 @@ def find_file_paths(tile_names, lidar_dtm, lidar_dsm):
     
     for tile in tile_names:
         # Find matching DTM file
-        dtm_match = [f for f in dtm_files if tile in f and f.endswith('.tif')]
+        dtm_match = [f for f in dtm_files if tile in f and 'DTM' in f.upper() and f.endswith('.tif')]
         if dtm_match:
             dtm_paths.append(os.path.join(lidar_dtm, dtm_match[0]))
         else:
             print(f"Warning: No DTM file found for tile {tile}")
         
         # Find matching DSM file
-        dsm_match = [f for f in dsm_files if tile in f and f.endswith('.tif')]
+        dsm_match = [f for f in dsm_files if tile in f and 'DSM' in f.upper() and f.endswith('.tif')]
         if dsm_match:
             dsm_paths.append(os.path.join(lidar_dsm, dsm_match[0]))
         else:
