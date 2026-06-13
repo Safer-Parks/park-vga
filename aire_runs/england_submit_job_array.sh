@@ -16,7 +16,7 @@ python england_run.py \
     "england_filenames_flipped.csv" \
     "parks_gardens_id/" \
     "/mnt/scratch/earmmu/england_aire_run_output/" \
-    "/mnt/scratch/earmmu/..." \
-    "/mnt/scratch/earmmu/..." \
+    "/mnt/scratch/earmmu/england_lidar" \
+    "/mnt/scratch/earmmu/england_lidar/DSM" \
     "../example_datasets/all_parks_ids.csv" \
     "../example_datasets/LUT_regions_authorities_filenames.geojson"
