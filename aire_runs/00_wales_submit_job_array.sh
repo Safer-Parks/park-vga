@@ -11,7 +11,7 @@
 
 mkdir -p logs
 eval "$(pixi shell-hook --shell=bash)"
-python wales_run.py \
+python wales_run_new.py \
     "$SLURM_ARRAY_TASK_ID" \
     "wales_filenames.csv" \
     "parks_gardens_id/" \
