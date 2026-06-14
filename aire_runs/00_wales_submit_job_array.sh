@@ -13,8 +13,8 @@ mkdir -p logs
 eval "$(pixi shell-hook --shell=bash)"
 python wales_run_new.py \
     "$SLURM_ARRAY_TASK_ID" \
-    "wales_filenames.csv" \
-    "parks_gardens_id/" \
+    "parameter_files/wales_filenames_00.csv" \
+    "parks_final/" \
     "/mnt/scratch/earmmu/wales_aire_run_output/" \
     "/mnt/scratch/earmmu/wales_lidar/wales_dtm_32bit_cog.tif" \
     "/mnt/scratch/earmmu/wales_lidar/wales_dsm_32bit_cog.tif" \

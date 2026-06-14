@@ -34,7 +34,7 @@ filename = files_list.loc[csv_row_index, "filename"]
 
 file_path = os.path.join(data_folder, filename)
 gdf = gpd.read_file(file_path)
-output_sub_dir = os.path.join(output_folder, filename.split(".")[0])
+output_sub_dir = os.path.join(output_folder, filename.split(".geojson")[0])
 os.makedirs(output_sub_dir, exist_ok=True)
 
 check_regions_gdf = gpd.read_file(lut_file)
