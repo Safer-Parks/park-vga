@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoJSON Layer Viewer with Hex Reconstruction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+        .info {
+            padding: 6px 8px;
+            font-size: 14px;
+            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([51.6, -0.647], 12);
+
+        // Add base layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Create layer groups
+        const polygonLayer = L.layerGroup();
+        const centroidLayer = L.layerGroup();
+        const reconstructedLayer = L.layerGroup();
+
+        // Function to convert lat/lon degrees to radians
+        function toRad(deg) {
+            return deg * Math.PI / 180;
+        }
+
+        // Function to convert radians to lat/lon degrees
+        function toDeg(rad) {
+            return rad * 180 / Math.PI;
+        }
+
+        // Function to calculate distance between two points (in meters)
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000; // Earth radius in meters
+            const φ1 = toRad(lat1);
+            const φ2 = toRad(lat2);
+            const Δφ = toRad(lat2 - lat1);
+            const Δλ = toRad(lon2 - lon1);
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // Function to calculate destination point given distance and bearing
+        function destinationPoint(lat, lon, distanceM, bearingDeg) {
+            const R = 6371000; // Earth radius in meters
+            const φ1 = toRad(lat);
+            const λ1 = toRad(lon);
+            const θ = toRad(bearingDeg);
+            const δ = distanceM / R;
+
+            const φ2 = Math.asin(Math.sin(φ1) * Math.cos(δ) +
+                                Math.cos(φ1) * Math.sin(δ) * Math.cos(θ));
+            const λ2 = λ1 + Math.atan2(Math.sin(θ) * Math.sin(δ) * Math.cos(φ1),
+                                       Math.cos(δ) - Math.sin(φ1) * Math.sin(φ2));
+
+            return [toDeg(φ2), toDeg(λ2)];
+        }
+
+        // Function to create a hexagon polygon from a center point and radius
+        function createHexFromCenter(lat, lon, radiusM) {
+            const hexPoints = [];
+            for (let i = 0; i < 6; i++) {
+                const bearing = i * 60; // 6 points, 60 degrees apart
+                const point = destinationPoint(lat, lon, radiusM, bearing);
+                hexPoints.push([point[0], point[1]]);
+            }
+            hexPoints.push(hexPoints[0]); // Close the polygon
+            return hexPoints;
+        }
+
+        let hexRadius = 400; // Default radius in meters, will be updated from data
+
+        // Load both files and ensure polygon radius is extracted first
+        Promise.all([
+            fetch('../test_polygon.geojson').then(r => r.json()),
+            fetch('../test_centroids.geojson').then(r => r.json())
+        ])
+        .then(([polygonData, centroidData]) => {
+            // Extract hex radius from first polygon
+            if (polygonData.features.length > 0) {
+                const firstFeature = polygonData.features[0];
+                const coords = firstFeature.geometry.coordinates[0];
+                
+                // Calculate approximate radius from polygon bounds
+                let minLat = coords[0][1], maxLat = coords[0][1];
+                let minLon = coords[0][0], maxLon = coords[0][0];
+                
+                for (let coord of coords) {
+                    minLat = Math.min(minLat, coord[1]);
+                    maxLat = Math.max(maxLat, coord[1]);
+                    minLon = Math.min(minLon, coord[0]);
+                    maxLon = Math.max(maxLon, coord[0]);
+                }
+                
+                const centerLat = (minLat + maxLat) / 2;
+                const centerLon = (minLon + maxLon) / 2;
+                hexRadius = haversineDistance(centerLat, centerLon, maxLat, centerLon) * 0.9;
+            }
+
+            // Add original polygons to map
+            L.geoJSON(polygonData, {
+                style: {
+                    color: 'blue',
+                    weight: 2,
+                    opacity: 0.7,
+                    fillOpacity: 0.3
+                }
+            }).addTo(polygonLayer);
+
+            // Add centroid markers
+            L.geoJSON(centroidData, {
+                pointToLayer: function (feature, latlng) {
+                    return L.circleMarker(latlng, {
+                        radius: 6,
+                        fillColor: 'red',
+                        color: '#000',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.7
+                    });
+                }
+            }).addTo(centroidLayer);
+
+            // Create reconstructed hexes from centroids using calculated hexRadius
+            centroidData.features.forEach(feature => {
+                const coords = feature.geometry.coordinates;
+                const lat = coords[1];
+                const lon = coords[0];
+                
+                const hexPoints = createHexFromCenter(lat, lon, hexRadius);
+                L.polygon(hexPoints, {
+                    color: 'green',
+                    weight: 1,
+                    opacity: 0.8,
+                    fillOpacity: 0.1,
+                    dashArray: '5, 5'
+                }).addTo(reconstructedLayer);
+            });
+        })
+        .catch(error => console.error('Error loading data:', error));
+
+        // Add layers to map by default
+        polygonLayer.addTo(map);
+        centroidLayer.addTo(map);
+        reconstructedLayer.addTo(map);
+
+        // Create layer control
+        const baseLayers = {};
+        const overlays = {
+            'Original Polygons': polygonLayer,
+            'Centroids': centroidLayer,
+            'Reconstructed Hexes': reconstructedLayer
+        };
+
+        L.control.layers(baseLayers, overlays).addTo(map);
+    </script>
+</body>
+</html>

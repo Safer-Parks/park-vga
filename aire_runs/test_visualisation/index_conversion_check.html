@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polygon vs Centroid Conversion Verification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+        .info {
+            padding: 10px;
+            font-size: 12px;
+            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            max-width: 350px;
+        }
+        h4 {
+            margin: 0 0 10px 0;
+        }
+        p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([51.4, -0.65], 11);
+
+        // Add base layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Create layer groups
+        const polygonLayer = L.layerGroup();
+        const centroidLayer = L.layerGroup();
+        const reconstructedLayer = L.layerGroup();
+
+        // Constants
+        const HEX_RADIUS_M = 8.0;
+        // Format: { region: 'Region Name_pp_or_g_cmb', parks: ['01d290ad6561', '0314d6716d0d'] }
+        const PARKS_TO_LOAD = [
+            { region: 'Windsor and Maidenhead_pp_or_g_cmb', parks: ['019aff4f8789', '06adc0579fc1', '09268ef1c01a'] }
+        ];
+
+        // Helper functions for hex reconstruction
+        function toRad(deg) {
+            return deg * Math.PI / 180;
+        }
+
+        function toDeg(rad) {
+            return rad * 180 / Math.PI;
+        }
+
+        function destinationPoint(lat, lon, distanceM, bearingDeg) {
+            const R = 6371000; // Earth radius in meters
+            const φ1 = toRad(lat);
+            const λ1 = toRad(lon);
+            const θ = toRad(bearingDeg);
+            const δ = distanceM / R;
+
+            const φ2 = Math.asin(Math.sin(φ1) * Math.cos(δ) +
+                                Math.cos(φ1) * Math.sin(δ) * Math.cos(θ));
+            const λ2 = λ1 + Math.atan2(Math.sin(θ) * Math.sin(δ) * Math.cos(φ1),
+                                       Math.cos(δ) - Math.sin(φ1) * Math.sin(φ2));
+
+            return [toDeg(φ2), toDeg(λ2)];
+        }
+
+        function createHexFromCenter(lat, lon, radiusM) {
+            const hexPoints = [];
+            for (let i = 0; i < 6; i++) {
+                const bearing = i * 60;
+                const point = destinationPoint(lat, lon, radiusM, bearing);
+                hexPoints.push([point[0], point[1]]);
+            }
+            hexPoints.push(hexPoints[0]);
+            return hexPoints;
+        }
+
+        // Load files for each park
+        PARKS_TO_LOAD.forEach(regionData => {
+            const { region, parks } = regionData;
+            
+            parks.forEach(parkId => {
+                // Load original polygons from workflow_outputs
+                const polygonPath = `../../workflow_outputs/${region}/${parkId}_foliage.geojson`;
+                fetch(polygonPath)
+                    .then(response => {
+                        if (!response.ok) {
+                            console.warn(`Could not load ${polygonPath}: ${response.status}`);
+                            return null;
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.features && data.features.length > 0) {
+                            L.geoJSON(data, {
+                                style: {
+                                    color: 'blue',
+                                    weight: 2,
+                                    opacity: 0.7,
+                                    fillOpacity: 0.2
+                                }
+                            }).addTo(polygonLayer);
+                            console.log(`Loaded ${parkId} polygons (${data.features.length} features)`);
+                        }
+                    })
+                    .catch(error => console.warn(`Error loading polygon for ${parkId}:`, error));
+
+                // Load centroids from workflow_outputs_centroids
+                const centroidPath = `../../workflow_outputs_centroids/${region}/${parkId}_foliage.geojson`;
+                fetch(centroidPath)
+                    .then(response => {
+                        if (!response.ok) {
+                            console.warn(`Could not load ${centroidPath}: ${response.status}`);
+                            return null;
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.features && data.features.length > 0) {
+                            // Add centroid markers
+                            L.geoJSON(data, {
+                                pointToLayer: function (feature, latlng) {
+                                    return L.circleMarker(latlng, {
+                                        radius: 4,
+                                        fillColor: 'red',
+                                        color: '#000',
+                                        weight: 1,
+                                        opacity: 1,
+                                        fillOpacity: 0.8
+                                    });
+                                }
+                            }).addTo(centroidLayer);
+
+                            // Create reconstructed hexes from centroids
+                            data.features.forEach(feature => {
+                                const coords = feature.geometry.coordinates;
+                                const lat = coords[1];
+                                const lon = coords[0];
+                                
+                                const hexPoints = createHexFromCenter(lat, lon, HEX_RADIUS_M);
+                                L.polygon(hexPoints, {
+                                    color: 'green',
+                                    weight: 1,
+                                    opacity: 0.8,
+                                    fillOpacity: 0.05,
+                                    dashArray: '5, 5'
+                                }).addTo(reconstructedLayer);
+                            });
+                            console.log(`Loaded ${parkId} centroids (${data.features.length} features)`);
+                        }
+                    })
+                    .catch(error => console.warn(`Error loading centroids for ${parkId}:`, error));
+            });
+        });
+
+        // Add layers to map by default
+        polygonLayer.addTo(map);
+        centroidLayer.addTo(map);
+        reconstructedLayer.addTo(map);
+
+        // Create layer control
+        const overlays = {
+            'Original Polygons (blue)': polygonLayer,
+            'Centroids (red dots)': centroidLayer,
+            'Reconstructed Hexes (green)': reconstructedLayer
+        };
+
+        L.control.layers({}, overlays).addTo(map);
+
+        console.log(`Loading ${PARKS_TO_LOAD.reduce((sum, r) => sum + r.parks.length, 0)} parks`);
+        console.log(`Using hex radius: ${HEX_RADIUS_M}m`);
+    </script>
+</body>
+</html>
