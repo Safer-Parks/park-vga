@@ -37,7 +37,8 @@ def workflow_eng(filepath, n,
                  return_results=False,
                  save_results=True,
                  max_distance=100,
-                 park_id_for_file_name=None):
+                 park_id_for_file_name=None,
+                 height=1.0):
     
     # check output filepath exists, if not create it
     import os
@@ -72,7 +73,7 @@ def workflow_eng(filepath, n,
             lidar_data['dsm'], 
             lidar_data['dtm'], 
             lidar_data['transform'],
-            observer_height=1.0,
+            observer_height=height,
             target_height=0,
             max_distance=max_distance
         )
