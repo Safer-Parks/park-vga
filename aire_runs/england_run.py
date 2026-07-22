@@ -71,4 +71,5 @@ for n in range(len(gdf)):
                                             spacing=12,
                                             return_results=False, save_results=True,
                                             park_id_for_file_name=park_id_safe,
-                                            max_distance=80)
+                                            max_distance=80,
+                                            height=1.7)
