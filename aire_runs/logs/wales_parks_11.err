@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/users/earmmu/park-vga/.pixi/envs/default/lib/python3.14/site-packages/pandas/core/indexes/range.py", line 521, in get_loc
+    return self._range.index(new_key)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^
+ValueError: range.index(x): x not in range
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/users/earmmu/park-vga/aire_runs/england_run.py", line 33, in <module>
+    filename = files_list.loc[csv_row_index, "filename"]
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/users/earmmu/park-vga/.pixi/envs/default/lib/python3.14/site-packages/pandas/core/indexing.py", line 1199, in __getitem__
+    return self.obj._get_value(*key, takeable=self._takeable)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/users/earmmu/park-vga/.pixi/envs/default/lib/python3.14/site-packages/pandas/core/frame.py", line 4495, in _get_value
+    row = self.index.get_loc(index)
+  File "/users/earmmu/park-vga/.pixi/envs/default/lib/python3.14/site-packages/pandas/core/indexes/range.py", line 523, in get_loc
+    raise KeyError(key) from err
+KeyError: 11
