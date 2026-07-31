@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=test_height_parks
-#SBATCH --array=3
+#SBATCH --array=0-2
 #SBATCH --time=20:00:00
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
