@@ -4,8 +4,8 @@
 #SBATCH --time=20:00:00
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
-#SBATCH --output=logs/test_height_parks_%a.log
-#SBATCH --error=logs/test_height_parks_%a.err
+#SBATCH --output=logs/test_height_parks3_%a.log
+#SBATCH --error=logs/test_height_parks3_%a.err
 #SBATCH --mail-type=END,FAIL
 #SBATCH --account=proj_a
 
